@@ -3,7 +3,7 @@ from src.model import train_model
 from src.evaluation import evaluate_model
 
 if __name__ == "__main__":
-    print("Generiere Beispiel-Daten...")
+    print("Generiere Beispiel-Daten mit erweiterten Features...")
     generate_sample_data()
     
     print("Lade und verarbeite Daten...")

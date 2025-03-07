@@ -1,6 +1,6 @@
 from sklearn.metrics import accuracy_score, classification_report
 
-# Modell evaluieren
+# 4. Modell evaluieren
 def evaluate_model(model, X_test, y_test):
     y_pred = model.predict(X_test)
     print("Genauigkeit:", accuracy_score(y_test, y_pred))

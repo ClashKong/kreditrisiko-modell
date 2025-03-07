@@ -3,11 +3,13 @@ import pandas as pd
 import numpy as np
 import sqlite3
 import joblib
+import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import roc_curve, auc
 
 # Lade das trainierte Modell
-model = joblib.load("best_model.pkl")
-scaler = joblib.load("scaler.pkl")
+model = joblib.load("webapp/best_model.pkl")
+scaler = joblib.load("webapp/scaler.pkl")
 
 # Verbindung zur SQLite-Datenbank herstellen
 def load_data():
@@ -15,6 +17,26 @@ def load_data():
     df = pd.read_sql("SELECT * FROM kreditdaten", conn)
     conn.close()
     return df
+
+# ROC-Kurve zeichnen
+def plot_roc_curve():
+    df = load_data()
+    X = df[['Kreditbetrag', 'Laufzeit', 'Einkommen', 'Alter', 'Kreditverlauf', 'Schuldenquote']]
+    y = df['Kreditwürdigkeit']
+    X_scaled = scaler.transform(X)
+    
+    y_prob = model.predict_proba(X_scaled)[:, 1]
+    fpr, tpr, _ = roc_curve(y, y_prob)
+    auc_score = auc(fpr, tpr)
+    
+    plt.figure(figsize=(6, 4))
+    plt.plot(fpr, tpr, label=f"AUC = {auc_score:.2f}")
+    plt.plot([0, 1], [0, 1], linestyle='--', color='gray')
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.title("ROC-Kurve des Modells")
+    plt.legend()
+    st.pyplot(plt)
 
 # Streamlit UI
 def main():
@@ -42,6 +64,10 @@ def main():
             st.success("✅ Der Kunde ist kreditwürdig!")
         else:
             st.error("❌ Der Kunde ist nicht kreditwürdig!")
-
+    
+    # Zusätzliche Analyse
+    st.subheader("📊 Modell-Performance: ROC-Kurve")
+    plot_roc_curve()
+    
 if __name__ == "__main__":
     main()

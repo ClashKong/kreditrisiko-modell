@@ -4,6 +4,7 @@ import numpy as np
 import sqlite3
 import joblib
 import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import roc_curve, auc
 
@@ -38,6 +39,18 @@ def plot_roc_curve():
     plt.legend()
     st.pyplot(plt)
 
+# Feature-Importance Diagramm
+def plot_feature_importance():
+    feature_names = ['Kreditbetrag', 'Laufzeit', 'Einkommen', 'Alter', 'Kreditverlauf', 'Schuldenquote']
+    importances = model.feature_importances_
+    
+    plt.figure(figsize=(6, 4))
+    sns.barplot(x=importances, y=feature_names, orient='h')
+    plt.xlabel("Wichtigkeit")
+    plt.ylabel("Feature")
+    plt.title("Feature Importance des Modells")
+    st.pyplot(plt)
+
 # Streamlit UI
 def main():
     st.title("Kreditrisiko-Bewertung")
@@ -68,6 +81,21 @@ def main():
     # Zusätzliche Analyse
     st.subheader("📊 Modell-Performance: ROC-Kurve")
     plot_roc_curve()
+    
+    st.subheader("📊 Feature Importance")
+    plot_feature_importance()
+    
+    # Datenanalyse
+    st.subheader("📊 Kreditdaten erkunden")
+    df = load_data()
+    st.dataframe(df.head())
+    
+    st.subheader("📊 Verteilungen der Merkmale")
+    selected_feature = st.selectbox("Wähle ein Feature", ['Kreditbetrag', 'Laufzeit', 'Einkommen', 'Alter', 'Kreditverlauf', 'Schuldenquote'])
+    plt.figure(figsize=(6, 4))
+    sns.histplot(df[selected_feature], bins=30, kde=True)
+    plt.title(f"Verteilung von {selected_feature}")
+    st.pyplot(plt)
     
 if __name__ == "__main__":
     main()
